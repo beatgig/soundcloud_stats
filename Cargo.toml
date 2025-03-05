@@ -1,0 +1,11 @@
+[package]
+name = "meta_stats"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "meta_stats"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
