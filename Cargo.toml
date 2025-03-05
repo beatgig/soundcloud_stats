@@ -1,10 +1,10 @@
 [package]
-name = "meta_stats"
+name = "soundcloud_stats"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "meta_stats"
+name = "soundcloud_stats"
 crate-type = ["cdylib"]
 
 [dependencies]

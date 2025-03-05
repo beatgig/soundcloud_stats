@@ -3,12 +3,12 @@ requires = ["maturin>=1.0"]
 build-backend = "maturin"
 
 [tool.poetry]
-name = "meta_stats"
+name = "soundcloud_stats"
 version = "0.1.0"
-description = "A Rust library with Python bindings for Meta Stats"
+description = "A Rust library with Python bindings for SoundCloud Stats"
 authors = ["David Engelmann <david@beatgig.com>"]
 readme = "README.md"
-packages = [{ include = "meta_stats" }]
+packages = [{ include = "soundcloud_stats" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"

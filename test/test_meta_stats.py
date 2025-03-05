@@ -1,8 +1,8 @@
-import meta_stats
+import soundcloud_stats
 
-def test_meta_stats():
-    assert meta_stats.add(1, 2) == 3
-    assert meta_stats.add(2, 2) == 4
-    assert meta_stats.add(1, -1) == 0
+def test_soundcloud_stats():
+    assert soundcloud_stats.add(1, 2) == 3
+    assert soundcloud_stats.add(2, 2) == 4
+    assert soundcloud_stats.add(1, -1) == 0
     print("all done!")
     

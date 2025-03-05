@@ -1,9 +1,9 @@
-# Meta Stats
+# SoundCloud Stats
 
-A Rust library with Python bindings for Meta Stats
+A Rust library with Python bindings for SoundCloud stats
 
 ## Installation
 
 ```bash
-pip install meta_stats
+pip install soundcloud_stats
 ```
