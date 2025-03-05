@@ -64,7 +64,7 @@ jobs:
       - name: Upload wheels as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-${{ matrix.os }}
           path: dist
 
   release:
@@ -113,18 +113,38 @@ jobs:
             echo "version=${{ steps.get_tag_version.outputs.version }}" >> $GITHUB_OUTPUT
           fi
       
-      - name: Download wheels
+      - name: Download Ubuntu wheels
         uses: actions/download-artifact@v4
         with:
-          name: wheels
-          path: dist
+          name: wheels-ubuntu-latest
+          path: dist/ubuntu
+          
+      - name: Download Windows wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-windows-latest
+          path: dist/windows
+          
+      - name: Download macOS wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheels-macos-latest
+          path: dist/macos
+          
+      - name: Merge wheel directories
+        run: |
+          mkdir -p dist/all
+          cp -r dist/ubuntu/* dist/all/ || true
+          cp -r dist/windows/* dist/all/ || true
+          cp -r dist/macos/* dist/all/ || true
+          ls -la dist/all
           
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Release v${{ steps.set_version.outputs.version }}"
           tag_name: "v${{ steps.set_version.outputs.version }}"
-          files: dist/*
+          files: dist/all/*
           generate_release_notes: true
           draft: false
         env:
