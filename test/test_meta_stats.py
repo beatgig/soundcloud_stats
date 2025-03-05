@@ -16,5 +16,8 @@ def test_soundcloud_stats():
     stats = soundcloud_stats.account.get_account_stats("https://soundcloud.com/chachiofficial", soundcloud_access_token, 10)
     print(f"soundcloud stats: {stats}")
     assert stats
-    assert False
+    assert "username" in stats
+    assert "followers_count" in stats
+    assert "followings_count" in stats
+    assert "track_count" in stats
     
