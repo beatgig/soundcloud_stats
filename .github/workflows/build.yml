@@ -90,12 +90,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install toml
       
-      - name: Get version from pyproject.toml (for main push)
+      - name: Update version in pyproject.toml (for main push)
         if: github.ref == 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
-        id: get_version
+        id: update_version
         run: |
-          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Get current package version from Poetry section of pyproject.toml
+          CURRENT_VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
+          
+          # Calculate new version (patch increment)
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          PATCH=$((VERSION_PARTS[2] + 1))
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+          
+          # Update pyproject.toml with new version
+          python -c "
+          import toml
+          data = toml.load('pyproject.toml')
+          data['tool']['poetry']['version'] = '$NEW_VERSION'
+          with open('pyproject.toml', 'w') as f:
+              toml.dump(data, f)
+          "
+          
+          echo "Current version: $CURRENT_VERSION"
+          echo "New version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if file was actually changed
+          if git diff --quiet pyproject.toml; then
+            echo "No changes detected in pyproject.toml"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in pyproject.toml"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
       
       - name: Get tag version (for tag push)
         if: startsWith(github.ref, 'refs/tags/')
@@ -108,7 +135,7 @@ jobs:
         id: set_version
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "version=${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.update_version.outputs.version }}" >> $GITHUB_OUTPUT
           else
             echo "version=${{ steps.get_tag_version.outputs.version }}" >> $GITHUB_OUTPUT
           fi
@@ -151,7 +178,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Commit version changes (for main push)
-        if: github.ref == 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/') && steps.update_version.outputs.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
