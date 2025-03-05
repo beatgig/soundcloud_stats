@@ -32,10 +32,21 @@ jobs:
       
       - name: Get version from pyproject.toml
         id: get_version
+        shell: python
         run: |
-          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Using version: $VERSION"
+          import os
+          import toml
+          
+          # Read the version from pyproject.toml
+          with open('pyproject.toml', 'r') as f:
+              data = toml.load(f)
+              version = data['tool']['poetry']['version']
+          
+          # Set output for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"version={version}\n")
+          
+          print(f"Using version: {version}")
       
       - name: Build wheels
         uses: PyO3/maturin-action@v1
@@ -56,13 +67,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install toml
+      
       - name: Get version from pyproject.toml
         id: get_version
+        shell: python
         run: |
-          python -c "import toml; print(toml.load('pyproject.toml')['tool']['poetry']['version'])" > version.txt
-          VERSION=$(cat version.txt)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Using version: $VERSION"
+          import os
+          import toml
+          
+          # Read the version from pyproject.toml
+          with open('pyproject.toml', 'r') as f:
+              data = toml.load(f)
+              version = data['tool']['poetry']['version']
+          
+          # Set output for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"version={version}\n")
+          
+          print(f"Using version: {version}")
       
       - name: Download Ubuntu wheels
         uses: actions/download-artifact@v4
