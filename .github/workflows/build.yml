@@ -16,12 +16,12 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for proper versioning
+          fetch-depth: 0
       
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       
@@ -62,7 +62,7 @@ jobs:
           args: --release --strip --out dist --python-interpreter python3.12
           
       - name: Upload wheels as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -71,17 +71,16 @@ jobs:
     name: Create GitHub Release
     needs: build_wheels
     runs-on: ubuntu-latest
-    # Create release on either tag push or main push
     if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: github.ref == 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
         with:
           fetch-depth: 0
       
       - name: Set up Python 3.12 (for main push)
         if: github.ref == 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       
@@ -115,13 +114,13 @@ jobs:
           fi
       
       - name: Download wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wheels
           path: dist
           
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: "Release v${{ steps.set_version.outputs.version }}"
           tag_name: "v${{ steps.set_version.outputs.version }}"
