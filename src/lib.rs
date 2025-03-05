@@ -11,12 +11,6 @@ struct AccessTokenResponse {
 }
 
 
-/// Adds two numbers.
-#[pyfunction]
-fn add(a: i32, b: i32) -> PyResult<i32> {
-    Ok(a + b)
-}
-
 #[pyfunction]
 fn get_soundcloud_client_id() -> PyResult<String> {
 
@@ -107,7 +101,6 @@ fn get_soundcloud_access_token(endpoint_url: Option<String>, client_id: Option<S
 /// Python module definition
 #[pymodule]
 fn soundcloud_stats(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(add, m)?)?;
     m.add_function(wrap_pyfunction!(get_soundcloud_client_id, m)?)?;
     m.add_function(wrap_pyfunction!(get_soundcloud_client_secret, m)?)?;
     m.add_function(wrap_pyfunction!(get_soundcloud_access_token, m)?)?;
