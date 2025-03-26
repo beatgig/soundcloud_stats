@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 pub mod auth;
 pub mod account;
+pub mod error;
 
 /// Python module definition
 #[pymodule]
@@ -15,11 +16,15 @@ fn soundcloud_stats(py: Python, m: &PyModule) -> PyResult<()> {
     
     let account_module = PyModule::new(py, "account")?;
     account_module.add_function(wrap_pyfunction!(account::get_account_stats, account_module)?)?;
+
+    let error_module = PyModule::new(py, "error")?;
     
     m.add_submodule(auth_module)?;
     m.add_submodule(account_module)?;
+    m.add_submodule(error_module)?;
 
     py.import("sys")?.getattr("modules")?.set_item("soundcloud_stats.auth", auth_module)?;
     py.import("sys")?.getattr("modules")?.set_item("soundcloud_stats.account", account_module)?;
+    py.import("sys")?.getattr("modules")?.set_item("soundcloud_stats.error", error_module)?;
     Ok(())
 }

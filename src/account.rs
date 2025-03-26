@@ -53,7 +53,46 @@ struct TracksCollection {
 pub fn get_account_stats(profile_url: String, access_token: Option<String>, page_size: Option<u32>) -> PyResult<PyObject> {
     let token = match access_token {
         Some(token) => token,
-        None => auth::get_soundcloud_access_token(None, None, None, None)?,
+        None => {
+            let token_result = auth::get_soundcloud_access_token(None, None, None, None)?;
+            
+            Python::with_gil(|py| {
+                let py_result = token_result.as_ref(py);
+                
+                // Extract is_success field using getattr
+                let is_success = py_result.getattr("is_success")?.extract::<bool>()?;
+                
+                if !is_success {
+                    // If not successful, extract the error
+                    let py_error = py_result.getattr("error")?.extract::<Option<PyObject>>()?;
+                    
+                    if let Some(error_obj) = py_error {
+                        // Try to get simple_error message if available
+                        let simple_error = error_obj.as_ref(py).getattr("simple_error")?.extract::<Option<PyObject>>()?;
+                        
+                        if let Some(simple_err_obj) = simple_error {
+                            let message = simple_err_obj.as_ref(py).getattr("message")?.extract::<String>()?;
+                            return Err(PyValueError::new_err(format!("Failed to get access token: {}", message)));
+                        }
+                        
+                        return Err(PyValueError::new_err("Failed to get access token (unknown error)"));
+                    }
+                    
+                    return Err(PyValueError::new_err("Failed to get access token (no error details)"));
+                }
+                
+                // Extract the access_token if successful
+                let py_token_response = py_result.getattr("access_token")?.extract::<Option<PyObject>>()?;
+                
+                match py_token_response {
+                    Some(token_obj) => {
+                        // Extract the actual token string from AccessTokenResponse
+                        token_obj.as_ref(py).getattr("access_token")?.extract::<String>()
+                    },
+                    None => Err(PyValueError::new_err("No access token in successful response")),
+                }
+            })?
+        },
     };
 
     let number_of_tracks = match page_size {
