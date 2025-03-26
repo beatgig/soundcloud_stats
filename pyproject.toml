@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [tool.poetry]
 name = "soundcloud_stats"
-version = "0.1.2"
+version = "0.1.3"
 description = "A Rust library with Python bindings for SoundCloud Stats"
 authors = [ "David Engelmann <david@beatgig.com>",]
 readme = "README.md"

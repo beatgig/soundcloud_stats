@@ -16,9 +16,10 @@ def test_soundcloud_stats():
             assert False, "Got success result but token is None"
         soundcloud_access_token = token_response.access_token
     else:
-        error = soundcloud_access_token_result.get_error
+        error = soundcloud_access_token_result.error_info
         if error is None:
             assert False, "Got error result but error is None"
+
         
         if error.simple_error is not None:
             error_message = error.simple_error.message
