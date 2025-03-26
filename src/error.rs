@@ -99,4 +99,25 @@ impl SoundcloudError {
             simple_error: Some(SoundcloudSimpleError { message }),
         }
     }
+
+    fn __str__(&self) -> PyResult<String> {
+        if let Some(simple_error) = &self.simple_error {
+            Ok(simple_error.message.clone())
+        } else if self.is_rate_limit {
+            Ok("Rate limit exceeded".to_string())
+        } else {
+            Ok("Unknown error".to_string())
+        }
+    }
+    
+    // Add a repr for better debugging
+    fn __repr__(&self) -> PyResult<String> {
+        if self.is_rate_limit {
+            Ok(format!("SoundcloudError(rate_limit=True)"))
+        } else if let Some(simple_error) = &self.simple_error {
+            Ok(format!("SoundcloudError(message={:?})", simple_error.message))
+        } else {
+            Ok("SoundcloudError(unknown)".to_string())
+        }
+    }
 }

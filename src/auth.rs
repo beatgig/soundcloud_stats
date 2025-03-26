@@ -60,7 +60,7 @@ impl AccessTokenResponseResults {
     }
 
     #[getter]
-    fn get_error(&self) -> Option<Py<error::SoundcloudError>> {
+    fn error_info(&self) -> Option<Py<error::SoundcloudError>> {
         match &self.error {
             Some(error) => Python::with_gil(|py| Some(Py::new(py, error.clone()).unwrap())),
             None => None,
